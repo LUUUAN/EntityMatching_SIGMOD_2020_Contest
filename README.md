@@ -2,6 +2,9 @@
 
 #### DBGroup@SUSTech
 
+## Task
+This is the source code for 2020 SIGMOD Programming Contest. We aim to use a Rule-based method to solve the entity resolution problem in a real-world dataset.
+
 ## Getting Started
 
 1. Environment Requirement:
@@ -31,7 +34,7 @@
 
 ## Algorithm
 
-This project use the following algorithm to realize entity resolution
+This project use the following steps to realize entity resolution.
 
 ### Read data
 
