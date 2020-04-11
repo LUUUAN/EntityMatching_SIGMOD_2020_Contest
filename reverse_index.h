@@ -1,0 +1,6 @@
+#ifndef SIGMOD_CONTEST_REVERSE_INDEX_H
+#define SIGMOD_CONTEST_REVERSE_INDEX_H
+
+void multiple_models();
+
+#endif //SIGMOD_CONTEST_REVERSE_INDEX_H
