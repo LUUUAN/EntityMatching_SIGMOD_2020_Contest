@@ -99,7 +99,7 @@ int str_edit_distance(string a, string b) {
 }
 
 
-bool set_share_more_than(const unordered_set<string>& a, const unordered_set<string>& b, const int& threshold) {
+bool set_share_more_than(const set<string>& a, const set<string>& b, const int& threshold) {
     int count = 0;
     for (const string& str_a: a) {
         if (b.find(str_a) != b.end()) {
@@ -114,7 +114,7 @@ bool set_share_more_than(const unordered_set<string>& a, const unordered_set<str
 }
 
 
-void set_difference(const unordered_set<string>& a, const unordered_set<string>& b, unordered_set<string>& ret) {
+void set_difference(const set<string>& a, const set<string>& b, set<string>& ret) {
     for (const string& str_a: a) {
         if (b.find(str_a) == b.end()) {
             ret.insert(str_a);

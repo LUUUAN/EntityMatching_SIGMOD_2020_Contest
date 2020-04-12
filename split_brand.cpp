@@ -1,21 +1,20 @@
-
+#include <set>
+#include <map>
+#include <iostream>
 #include <string>
-#include <unordered_set>
-#include <unordered_map>
 #include <regex>
 #include <list>
-#include <iostream>
 #include "dataset.h"
 
 using namespace std;
 
-void postfix_split(string brand, string model, unordered_set<string> postfixes) {
-    unordered_map<string, unordered_set<string>> postfix_dict;
+void postfix_split(string brand, string model, set<string> postfixes) {
+    map<string, set<string>> postfix_dict;
     postfix_dict[model] = {};
     for (string postfix: postfixes) {
         postfix_dict[model+postfix] = {};
     }
-    unordered_set<string>& product_list = model_index[brand][model];
+    set<string>& product_list = model_index[brand][model];
 
     for(string product: product_list) {
         bool has_postfix = false;
@@ -50,9 +49,9 @@ void postfix_split(string brand, string model, unordered_set<string> postfixes) 
 
 
 
-void generation_split(string brand, string model, unordered_set<string> spec_generations = {}) {
-    unordered_set<string> product_list = model_index[brand][model];
-    unordered_map<string, unordered_set<string>> generation_dict;
+void generation_split(string brand, string model, set<string> spec_generations = {}) {
+    set<string> product_list = model_index[brand][model];
+    map<string, set<string>> generation_dict;
     list<pair<string, string>> generation_transfer = {{"4", "IV"}, {"3", "III"}, {"2", "II"}};
 
     generation_dict[model] = {};
@@ -99,14 +98,14 @@ void generation_split(string brand, string model, unordered_set<string> spec_gen
             generation_dict[model].insert(product);
         }
     }
-
+    /*
     for (auto item: generation_dict) {
         cout << item.first << endl;
         for (string p: item.second) {
             cout << p << "," << all_data[p]->page_title << endl;
         }
         cout << endl;
-    }
+    }*/
 
 
     for (auto item: generation_dict) {
@@ -123,10 +122,12 @@ void split_brand() {
 
     generation_split("Canon", "1D", {"Mark II N"});
     generation_split("Canon", "1DS");
-    generation_split("Canon", "EOS5");
+    generation_split("Canon", "5D");
     generation_split("Canon", "7D");
     generation_split("Canon", "G1");
     generation_split("Sony", "A77");
     generation_split("Sony", "RX100");
+    model_index["Sony"]["RX100 III"].insert("www.ebay.com//60483");
+    model_index["Sony"].erase("RX1002");
 
 }

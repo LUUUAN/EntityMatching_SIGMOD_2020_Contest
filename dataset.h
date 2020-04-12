@@ -1,7 +1,3 @@
-//
-// Created by ludwig on 2020/4/6.
-//
-
 #ifndef SIGMOD_CONTEST_DATASET_H
 #define SIGMOD_CONTEST_DATASET_H
 
@@ -9,6 +5,8 @@
 #include <unordered_set>
 #include <string>
 #include <vector>
+#include <map>
+#include <set>
 
 using namespace std;
 struct DataContent {
@@ -19,13 +17,13 @@ struct DataContent {
 /*
 	所有的数据应该是一个映射，key为source(www.a.com//0)，value为json文件中有用标签的类DataContent
 */
-extern unordered_map<string, struct DataContent *> all_data;
+extern map<string, struct DataContent *> all_data;
 
 /*
 	对每个商品分好品牌
 	key值为品牌名称，value为该品牌下所有型号的list
 */
-extern unordered_map<string, unordered_set<string> > brand_index;
+extern map<string, set<string>> brand_index;
 
 
 /*
@@ -33,7 +31,7 @@ extern unordered_map<string, unordered_set<string> > brand_index;
 	第一维：key值为品牌的名称，value值为该品牌下所有型号及其对应所有相机的映射
 	第二维：key值为型号名称，value值维该型号所有相机的list
 */
-extern unordered_map<string, unordered_map<string, unordered_set<string> > > model_index;
+extern map<string, map<string, set<string>>> model_index;
 
 
 
@@ -46,9 +44,9 @@ extern unordered_map<string, unordered_map<string, unordered_set<string> > > mod
 
 
 
-extern unordered_map<string, unordered_set<string> *> others;
+extern map<string, set<string> *> others;
 
-void listFiles(string path, vector<string> &files);
+void listFiles(string& path, vector<string> &files);
 
 void readAll(const string& path);
 

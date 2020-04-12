@@ -1,38 +1,17 @@
-// main.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
-//
-
-#include <iostream>
-#include <string.h>
-#include <exception>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-
-#ifdef __APPLE__
-           #include <sys/uio.h>
-#else
-           #include <sys/io.h>
-#endif
-
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include "dataset.h"
-#include "index_brand.h"
-#include "index_model.h"
-#include <unordered_set>
-// #include <direct.h>
-#include <sys/stat.h>
-#include "filters.h"
-#include "util.h"
+#include "resolve_others.h"
 #include "reverse_index.h"
 #include "intersection.h"
-#include "resolve_others.h"
-#include <algorithm>
-#include <regex>
-#include "merge_same.h"
+#include "index_brand.h"
+#include "index_model.h"
 #include "split_brand.h"
-
+#include "merge_same.h"
+#include "dataset.h"
+#include "filters.h"
+#include <iostream>
+#include <fstream>
+#include "util.h"
+#include <ctime>
 using namespace std;
-namespace pt = boost::property_tree;
 
 
 void solve(const string& output_path = "./submission.csv") {
@@ -58,20 +37,48 @@ void solve(const string& output_path = "./submission.csv") {
 
 
 int main(int argc, char** argv) {
+    time_t now = time(0);
+    char* dt = ctime(&now);
     readAll(argv[1]);
+
+    cout << "Preprocessing start:" << dt << '\n';
+    now = time(0);
+    dt = ctime(&now);
+    cout << "Preprocessing end:" << dt << '\n';
+
     index_brand();
+
+    cout << "Brand start:" << dt << '\n';
+    now = time(0);
+    dt = ctime(&now);
+    cout << "Brand end:" << dt << '\n';
+
     index_model();
+
+    cout << "Index start:" << dt << '\n';
+    now = time(0);
+    dt = ctime(&now);
+    cout << "Index end:" << dt << '\n';
+
     filtering();
     multiple_models();
     intersection();
     resolve_others();
     merge_same();
     split_brand();
-    model_index_to_file();
+    
+    cout << "Filter start:" << dt << '\n';
+    now = time(0);
+    dt = ctime(&now);
+    cout << "Filter end:" << dt << '\n';
+
     solve();
+
+    cout << "Solve start:" << dt << '\n';
+    now = time(0);
+    dt = ctime(&now);
+    cout << "Solve end:" << dt << '\n';
+
+
     return 0;
-
-
 }
-
-

@@ -1,18 +1,17 @@
-
 #include <unordered_map>
+#include <iostream>
 #include "dataset.h"
 #include <list>
-#include <iostream>
 
 using namespace std;
 
 
-unordered_map<string, list<pair<string, string>>> reversed_index;
+map<string, list<pair<string, string>>> reversed_index;
 list<string> rm_list {
-    "www.ebay.com//56876", "www.ebay.com//45419", "www.ebay.com//23996", "www.ebay.com//23901", "www.ebay.com//48556",
-    "www.ebay.com//59616", "www.ebay.com//48556", "www.ebay.com//54133", "www.ebay.com//55586", "www.ebay.com//42549",
-    "www.ebay.com//47424", "www.ebay.com//44323", "www.ebay.com//46513", "www.ebay.com//45893", "www.ebay.com//47037",
-    "www.ebay.com//55515"
+        "www.ebay.com//56876", "www.ebay.com//45419", "www.ebay.com//23996", "www.ebay.com//23901", "www.ebay.com//48556",
+        "www.ebay.com//59616", "www.ebay.com//48556", "www.ebay.com//54133", "www.ebay.com//55586", "www.ebay.com//42549",
+        "www.ebay.com//47424", "www.ebay.com//44323", "www.ebay.com//46513", "www.ebay.com//45893", "www.ebay.com//47037",
+        "www.ebay.com//55515"
 };
 
 

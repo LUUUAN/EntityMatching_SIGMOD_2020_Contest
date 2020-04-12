@@ -1,24 +1,25 @@
-#include <utility>
+#include <algorithm>
 #include <iostream>
-#include <list>
 #include "dataset.h"
 #include "util.h"
 #include <string>
 #include <thread>
-#include "index_model.h"
+#include <list>
+
+
 
 
 using namespace std;
 
 
-unordered_set<string> ban_set = {"1080p", "720p", "3d"};
-unordered_set<string> prefix_ban_set = {"under", "with", "camera", "full", "black", "pink", "for", "body",
+set<string> ban_set = {"1080p", "720p", "3d"};
+set<string> prefix_ban_set = {"under", "with", "camera", "full", "black", "pink", "for", "body",
                                         "canon", "ef", "top", "w", "led", "tv", "kit", "lens", "edition",
                                         "only", "pro", "ii", "iii"};
-unordered_map<string, list<string>> special_model = {{"Canon", {"xt", "xti", "xs", "xsi", "eos m", "eos m2", "1ds"}},
-                                                     {"Nikon", {"df", "v1", "v2", "d1x", "d2x", "d3x", "coolpix A"}},
+map<string, list<string>> special_model = {{"Canon", {"xt", "xti", "xs", "xsi", "eos m", "eos m2", "1ds"}},
+                                                     {"Nikon", {"df", "d1x", "d2x", "d3x", "coolpix A"}},
                                                      {"GoPro", {"Hero 3", "Hero 2", "Hero3+"}},
-                                                     {"SVP", {"Hero 3", "Hero 2", "Hero3+"}},
+                                                     {"SVP", {"20MP", "18MP"}},{"Olympus",{"EM 5","EM-5"}},
                                                      {"Hasselblad", {"Hasselblad"}}};
 
 
@@ -80,7 +81,7 @@ bool is_valid_postfix(string word) {
 }
 
 
-void collecting_models(const string& page_title, unordered_set<string>& model_set) {
+void collecting_models(const string& page_title, set<string>& model_set) {
     vector<string> tmp;
     split(page_title, tmp);
     //boost::split(tmp, page_title, boost::is_any_of(" "), boost::token_compress_on);
@@ -109,8 +110,8 @@ void collecting_models(const string& page_title, unordered_set<string>& model_se
 }
 
 
-void matching(unordered_map<string, unordered_set<string>>& model_index_each, const unordered_set<string>& model_set,
-              const unordered_set<string>& product_set) {
+void matching(map<string, set<string>>& model_index_each, const set<string>& model_set,
+              const set<string>& product_set) {
     for (const string& model: model_set) {
         //model_index_each[model] = new unordered_set<string>;
         for (const string& product: product_set) {
@@ -137,19 +138,25 @@ void matching(unordered_map<string, unordered_set<string>>& model_index_each, co
 
 
 inline void merge(string& to_model, string& from_model,
-                  unordered_map<string, unordered_set<string>>& model_index_each) {
+                  map<string, set<string>>& model_index_each) {
     model_index_each[to_model].insert(model_index_each[from_model].begin(), model_index_each[from_model].end());
 }
 
 
 
-void merge_paris(const unordered_set<string>& model_set,
-                 unordered_map<string, unordered_set<string>>& model_index_each) {
-    unordered_set<string> remove_models;
+void merge_pairs(const set<string> &model_set,
+                 map<string, set<string>> &model_index_each) {
+    set<string> remove_models;
+
     vector<string> models(model_set.begin(), model_set.end());
+    sort(models.begin(), models.end());
     for (int i = 0; i < models.size(); i++) {
         for (int j = i+1; j < models.size(); j++) {
             if (str_remove_space(models[i]) == str_remove_space(models[j])) {
+                if (remove_models.find(models[i]) == remove_models.end() ||
+                    remove_models.find(models[j]) == remove_models.end()) {
+                    continue;
+                }
                 merge(models[i], models[j], model_index_each);
                 remove_models.insert(models[j]);
             }
@@ -161,7 +168,7 @@ void merge_paris(const unordered_set<string>& model_set,
 }
 
 
-void kill_no_contribute(unordered_map<string, unordered_set<string>>& model_index_each) {
+void kill_no_contribute(map<string, set<string>>& model_index_each) {
     list<string> del_list;
     for (auto item: model_index_each) {
         if (item.second.size() < 2) {
@@ -174,10 +181,10 @@ void kill_no_contribute(unordered_map<string, unordered_set<string>>& model_inde
 }
 
 
-void index_model_brand(const string& brand, const unordered_set<string> product_set) {
+void index_model_brand(const string& brand, const set<string> product_set) {
     cout << "Indexing model: " << brand << endl;
-    unordered_map<string, unordered_set<string>> each_model_index;
-    unordered_set<string> model_set;
+    map<string, set<string>> each_model_index;
+    set<string> model_set;
     // add special
     if (special_model.find(brand) != special_model.end()) {
         for (string model: special_model[brand]) {
@@ -191,12 +198,12 @@ void index_model_brand(const string& brand, const unordered_set<string> product_
         collecting_models(page_title, model_set);
     }
     matching(each_model_index, model_set, product_set);
-    merge_paris(model_set, each_model_index);
+    merge_pairs(model_set, each_model_index);
     kill_no_contribute(each_model_index);
     model_index[brand] = each_model_index;
 }
 
-string important_brands[] = {"Canon", "Nikon", "Fuji","Sony","Panasonic","Samsung","Olympus"};
+string important_brands[] = {"Canon", "Nikon", "Fujifilm","Sony","Panasonic","Samsung","Olympus"};
 void index_model() {
     cout << "Indexing Models!" << endl;
     auto **th = new thread * [7];
@@ -213,10 +220,31 @@ void index_model() {
             }
         }
         if(flag) continue;
-        unordered_set<string> set = brand.second;
+        set<string> set = brand.second;
         index_model_brand(brand_name, set);
     }
     for(int i = 0;i<7;i++){
         th[i]->join();
     }
+
+
+
+
+//    ThreadPool pool(4);
+//    std::vector< std::future<int> > results;
+//
+//
+//    for (auto& brand: brand_index) {
+//        string brand_name = brand.first;
+//        bool flag = false;
+//        unordered_set<string> set = brand.second;
+//        results.emplace_back( pool.enqueue(index_model_brand, brand_name, set) );
+//    }
+//
+//    for(auto && result: results)
+//        std::cout << result.get() << ' ';
+//    std::cout << std::endl;
+
+
+
 }

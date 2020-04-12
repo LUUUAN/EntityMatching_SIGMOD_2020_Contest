@@ -3,23 +3,21 @@
 #include <unordered_set>
 #include <string>
 #include <iostream>
-#include <boost/concept_check.hpp>
 #include "index_brand.h"
 #include "dataset.h"
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
 #include <regex>
 #include "util.h"
+#include <set>
 
 using namespace std;
 typedef basic_regex<char> regex;
 
-string special_brand[] = {"Hikvision", "Dahua", "Konica", "Cannon", "Coolpix", "Vista Quest", "Go Pro"};
+string special_brand[] = {"Hikvision", "Dahua", "Konica", "Cannon", "Coolpix", "Vista Quest", "Go Pro","Minolta"};
 string ban_list[] = {"Tamron", "SHOOT"};
 
 
 list<string> brand_list;
-unordered_map<string, unordered_set<string> *> brand_items;
+map<string, set<string> *> brand_items;
 
 
 bool is_valid_brand(string brand) {
@@ -67,7 +65,6 @@ void remove_duplicate() {
     list<string> del_list;
     for (string brand: brand_list) {
         vector<string> tmp;
-        //boost::split(tmp, brand, boost::is_any_of(" "), boost::token_compress_on);
         split(brand, tmp);
         if (tmp.size() > 1 && (brand_items.find(tmp[0]) != brand_items.end())) {
             del_list.push_back(brand);
@@ -107,8 +104,8 @@ void get_brand_list() {
         }
 
         if (brand_items.find(brand) == brand_items.end()) {
-            auto *set = new unordered_set<string>;
-            brand_items[brand] = set;
+            auto *se = new set<string>;
+            brand_items[brand] = se;
         }
         brand_items[brand]->insert(product_id);
     }
@@ -122,11 +119,7 @@ void get_brand_list() {
 
 bool match(const string& brand, const string& page_title) {
     if (brand.length() < 4) {
-//        if(page_title.find(" "+brand+" ")!=-1) return true;
-//        if(page_title.find(brand+" ")==0) return true;
-//        return false;
         vector<string> tmp;
-        //boost::split(tmp, page_title, boost::is_any_of(" "), boost::token_compress_on);
         split(page_title, tmp);
         for (const string& word: tmp) {
             if (word == brand) {
@@ -145,9 +138,9 @@ bool match(const string& brand, const string& page_title) {
 void blocking() {
     cout << "Blocking according to the brands..." << endl;
     for (const string& brand: brand_list) {
-        unordered_set<string> visit;
+        set<string> visit;
         bool flag = !(brand == "Hikvision" || brand == "Dahua");
-        unordered_set<string> ids;
+        set<string> ids;
         for (const auto& item: all_data) {
             auto *data_content = item.second;
             string key = item.first;
@@ -182,26 +175,32 @@ void merge(const string& to_brand, const string& from_brand) {
         brand_index.find(to_brand) != brand_index.end()) {
         brand_index[to_brand].insert(brand_index[from_brand].begin(), brand_index[from_brand].end());
         brand_index.erase(from_brand);
+        cout << "Merge brand: from " << from_brand << " to " << to_brand << endl;
     }
 
 }
 
 
 void merge_pair() {
-    cout << "Merge same brands..." << endl;
     vector<string> brands(brand_list.begin(), brand_list.end());
+    set<string> del_set;
+    sort(brands.begin(), brands.end());
     for (int i = 0; i < brands.size(); i++) {
         for (int j = i + 1; j < brands.size(); j++) {
             int edit_distance = str_edit_distance(brands[i], brands[j]);
             if (edit_distance < 2 ||
                 brands[i].find(brands[j]) != string::npos ||
                 brands[j].find(brands[i]) != string::npos) {
-                merge(brands[i], brands[j]);
+                if (del_set.find(brands[i]) == del_set.end()) {
+                    merge(brands[j], brands[i]);
+                    del_set.insert(brands[i]);
+                }
             }
         }
     }
-    merge("Nikon", "Coolpix");
 
+    merge("Nikon", "Coolpix");
+    merge("Minolta", "Konica");
 }
 
 
@@ -209,15 +208,6 @@ void merge_pair() {
 void index_brand() {
     cout << "Indexing brand!" << endl;
     get_brand_list();
-    time_t now = time(0);
-    char* dt = ctime(&now);
-
-    cout << "Blocking_start:" << dt << '\n';
-
     blocking();
-    now = time(0);
-    dt = ctime(&now);
-    cout << "Blocking_end:" << dt << '\n';
-
     merge_pair();
 }
