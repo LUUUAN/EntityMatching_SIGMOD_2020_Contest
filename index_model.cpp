@@ -206,14 +206,14 @@ void index_model_brand(const string& brand, const set<string> product_set) {
 string important_brands[] = {"Canon", "Nikon", "Fujifilm","Sony","Panasonic","Samsung","Olympus"};
 void index_model() {
     cout << "Indexing Models!" << endl;
-    auto **th = new thread * [7];
-    for(int i = 0;i<7;i++){
+    auto **th = new thread * [4];
+    for(int i = 0;i<4;i++){
         th[i] = new thread(index_model_brand,important_brands[i],brand_index[important_brands[i]]);
     }
     for (auto& brand: brand_index) {
         string brand_name = brand.first;
         bool flag = false;
-        for(int i=0;i<7;i++){
+        for(int i=0;i<4;i++){
             if(brand_name == important_brands[i]){
                 flag = true;
                 break;
@@ -223,7 +223,7 @@ void index_model() {
         set<string> set = brand.second;
         index_model_brand(brand_name, set);
     }
-    for(int i = 0;i<7;i++){
+    for(int i = 0;i<4;i++){
         th[i]->join();
     }
 
