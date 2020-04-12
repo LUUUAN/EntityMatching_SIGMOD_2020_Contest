@@ -31,21 +31,17 @@ This is the source code for 2020 SIGMOD Programming Contest. We aim to use a Rul
    ```
 
 
-4. The result "submission.csv" file will be generated in the following path:
-
-   ```
-   ./judge/submission.csv
-   ```
+4. The result "submission.csv" file will be generated under current folder
 
 
 
 ## Algorithm
 
-This project use the following steps to realize entity resolution.
+The sketch of our solution consists of the following steps:
 
-### Read data
+### Data Loading
 
-Read the dataset and store the 'page_title' and 'brand' attribute into a map.
+Load the dataset and store the 'page_title' and 'brand' attribute into a map.
 
 ```
 <specification_id, (page_title, brand)>
@@ -59,41 +55,41 @@ e.g.
 
 
 
-### Index Brand
+### Brand Indexing
 
-- Record a list of brand from the 'brand' attribute read from the 'Read data' step
+- Record a list of brand from the 'brand' attribute read from the 'Data Loading' step
 - Filtering the illegal brand. (e.g. brand name with > 2 words)
 - Blocking each data according to brand.
 - Stored in a map <brand, set<string>>
 - Using string edit distance to merge same brand.
   - Referenced from https://leetcode-cn.com/problems/edit-distance/solution/bian-ji-ju-chi-by-leetcode-solution/
 
-### Index Model
+### Model Indexing
 
 Design a rule-based method to seperate out the model name of each camera specification under each brand. 
 
 Do blocking based on the page_title and the model extracted from it. A product can appear in different blocks. (more than one model name could be extracted from a page_title)
 
-### Reverse Index
+### Consturting Invert List
 
-- Build reverse index and delete some special product from blocks.
+- Build invert list and delete some special products from blocks.
   - E.g. "Nikon MH 63 Battery Charger Coolpix s 202 S200 S220 S230 S500 S510 S700 S 018208096251 | eBay"
 
-### Deal with "Same Model Different Representation" Problem
+### Addressing "Same Model Different Representation" Issue
 
 - Solve the problem that one model can have multiple model names. 
 - For a brand, if two model names shares more than 2 products, merge these two models together.
   - www.ebay.com//46420, Canon PowerShot ELPH 300 HS IXUS 220 HS 12 1 MP Digital Camera Black | eBay
   - "ELPH 300 HS" and "IXUS 220 HS" refer to the same camera
 
-### Extract Models from Unclassified Manifestation
+### Addressing Unclassified Manifestation
 
 Use rule to resolve remaining manifestation.
 
 - The product not blocked into any model will be add to the "others" list.
 - Extract products in "others" according to their page title using prefix as auxiliary data
 
-### Merge Model
+### Model Merging
 
 Merge models name and corresponding manifestations that refer to the same real world model.
 
@@ -102,7 +98,7 @@ Merge models name and corresponding manifestations that refer to the same real w
     - Map "EX-FH20" to "FH20"
     - Map "EX FH20" to "FH20"
 
-### Split Different Model
+### Different Model Splitting
 
 Split models that have same prefix and different postfix.
 
