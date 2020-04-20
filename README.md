@@ -16,5 +16,5 @@ We constructed two realization of the solution in c++ and python seperately.
 
 Team member: [Nan Deng](https://github.com/HollowKnight123), [Haotian Liu](https://github.com/haotian-l), [Wendi Luan](https://github.com/LUUUAN)
 
-Director: [Prof. Bo Tang](https://acm.sustech.edu.cn/btang/)
+Supervisor: [Prof. Bo Tang](https://acm.sustech.edu.cn/btang/)
 
