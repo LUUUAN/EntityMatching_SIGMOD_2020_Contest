@@ -12,7 +12,7 @@ This is the source code for [2020 SIGMOD Programming Contest](http://www.inf.uni
   - **CMake** (minimum version required: 3.14)
   - **gcc** (version required: 5.4.0 )
 
-1. Download this project and redirect to the project folder
+2. Download this project and redirect to the project folder
 
 3. Input the path of dataset folder during reproduction process:
 
